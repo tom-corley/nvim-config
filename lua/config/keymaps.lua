@@ -42,3 +42,18 @@ vim.keymap.set("t", "jk", [[<C-\><C-n>]], { desc = "Exit terminal mode" })
 
 -- lua modules are cached so a live re-source is unreliable — a full restart picks up every config change
 vim.keymap.set("n", "<leader>R", "<cmd>silent! wall<cr><cmd>restart<cr>", { desc = "Restart Neovim" })
+
+-- load every file changed since the last commit (staged, unstaged, untracked) as buffers
+vim.keymap.set("n", "<leader>j", function()
+  local changed_files = vim.fn.systemlist(
+    "{ git diff --name-only --relative --diff-filter=d HEAD; git ls-files --others --exclude-standard; } | sort -u"
+  )
+  if #changed_files == 0 then
+    vim.notify("No changed files", vim.log.levels.INFO)
+    return
+  end
+  for _, changed_file in ipairs(changed_files) do
+    vim.cmd.badd(vim.fn.fnameescape(changed_file))
+  end
+  vim.cmd.edit(vim.fn.fnameescape(changed_files[1]))
+end, { desc = "Open changed files" })
