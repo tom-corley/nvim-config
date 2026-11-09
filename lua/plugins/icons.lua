@@ -4,7 +4,7 @@ local function folder(codepoint, hl)
 end
 
 return {
-  "echasnovski/mini.icons",
+  "nvim-mini/mini.icons",
   opts = {
     directory = {
       app = folder(0xf024b, "MiniIconsRed"),
