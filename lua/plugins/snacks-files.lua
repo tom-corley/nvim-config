@@ -1,5 +1,6 @@
 -- show hidden + gitignored files in the file picker (<leader>ff), since
 -- .personal is a dotdir that git ignores but still has real working files in it
+-- (and is a symlink in worktrees, hence follow)
 return {
   "folke/snacks.nvim",
   opts = {
@@ -13,6 +14,7 @@ return {
         files = {
           hidden = true,
           ignored = true,
+          follow = true,
           exclude = {
             "node_modules",
             ".git",

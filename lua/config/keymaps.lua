@@ -57,3 +57,23 @@ vim.keymap.set("n", "<leader>j", function()
   end
   vim.cmd.edit(vim.fn.fnameescape(changed_files[1]))
 end, { desc = "Open changed files" })
+
+-- LazyVim's root lookup resolves symlinks, so buffers under a worktree's .personal symlink point lazygit at the primary checkout
+local cwd_git_root = function() return Snacks.git.get_root(vim.fn.getcwd()) end
+vim.keymap.set("n", "<leader>gg", function() Snacks.lazygit({ cwd = cwd_git_root() }) end, { desc = "Lazygit (cwd root)" })
+vim.keymap.set("n", "<leader>gl", function() Snacks.picker.git_log({ cwd = cwd_git_root() }) end, { desc = "Git Log (cwd root)" })
+
+-- load every file changed on this branch since it diverged from main, plus uncommitted work, as buffers
+vim.keymap.set("n", "<leader>gj", function()
+  local changed_files = vim.fn.systemlist(
+    "{ git diff --name-only --relative --diff-filter=d main...HEAD; git diff --name-only --relative --diff-filter=d HEAD; git ls-files --others --exclude-standard; } | sort -u"
+  )
+  if #changed_files == 0 then
+    vim.notify("No changed files", vim.log.levels.INFO)
+    return
+  end
+  for _, changed_file in ipairs(changed_files) do
+    vim.cmd.badd(vim.fn.fnameescape(changed_file))
+  end
+  vim.cmd.edit(vim.fn.fnameescape(changed_files[1]))
+end, { desc = "Open branch diff files" })
