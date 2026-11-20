@@ -60,3 +60,29 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.spell = false
   end,
 })
+
+-- New Java files: write the package declaration (derived from the path under
+-- src/main/java or src/test/java) and an empty class skeleton, like an IDE does.
+vim.api.nvim_create_autocmd({ "BufNewFile", "BufReadPost" }, {
+  group = vim.api.nvim_create_augroup("java_skeleton", { clear = true }),
+  pattern = "*.java",
+  callback = function(ev)
+    -- the file explorer creates the file on disk first, so also handle an empty existing file
+    local existing = vim.api.nvim_buf_get_lines(ev.buf, 0, -1, false)
+    if #existing > 1 or (existing[1] or "") ~= "" then
+      return
+    end
+    local path = vim.fn.fnamemodify(ev.file, ":p")
+    local name = vim.fn.fnamemodify(ev.file, ":t:r")
+    local pkg = path:match("/src/[^/]+/java/(.*)/[^/]+%.java$")
+    local lines = {}
+    if pkg then
+      table.insert(lines, "package " .. pkg:gsub("/", ".") .. ";")
+      table.insert(lines, "")
+    end
+    local kind = name:match("^I[A-Z]") and "interface" or "class"
+    vim.list_extend(lines, { "public " .. kind .. " " .. name .. " {", "    ", "}" })
+    vim.api.nvim_buf_set_lines(ev.buf, 0, -1, false, lines)
+    vim.api.nvim_win_set_cursor(0, { #lines - 1, 4 })
+  end,
+})
