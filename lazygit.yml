@@ -1,0 +1,14 @@
+keybinding:
+  universal:
+    # free `o` from lazygit's open-with-OS-default-app so the custom commands below win
+    openFile: '<disabled>'
+customCommands:
+  # close the lazygit float in the parent nvim, then open the hovered file as a buffer there
+  - key: 'o'
+    context: 'files'
+    description: 'open in nvim'
+    command: 'nvim --server "$NVIM" --remote-send "<C-\><C-N>:q<CR>" && nvim --server "$NVIM" --remote "$PWD/{{.SelectedPath}}"'
+  - key: 'o'
+    context: 'commitFiles'
+    description: 'open in nvim'
+    command: 'nvim --server "$NVIM" --remote-send "<C-\><C-N>:q<CR>" && nvim --server "$NVIM" --remote "$PWD/{{.SelectedPath}}"'

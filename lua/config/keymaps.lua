@@ -77,3 +77,11 @@ vim.keymap.set("n", "<leader>gj", function()
   end
   vim.cmd.edit(vim.fn.fnameescape(changed_files[1]))
 end, { desc = "Open branch diff files" })
+
+-- picker of tracked files changed vs HEAD (staged + unstaged), with M/A/D/R status markers; untracked files hidden
+vim.keymap.set("n", "<leader>gS", function()
+  Snacks.picker.git_status({
+    cwd = cwd_git_root(),
+    filter = { filter = function(item) return item.status ~= "??" end },
+  })
+end, { desc = "Git Status (tracked changes vs HEAD)" })
